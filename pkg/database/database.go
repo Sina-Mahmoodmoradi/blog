@@ -25,7 +25,7 @@ func Connect(cfg *config.Config)(*gorm.DB, error){
 		cfg.DBPort,
 	)
 
-	db,err := gorm.Open(postgres.Open(dns),&gorm.Config)
+	db,err := gorm.Open(postgres.Open(dns),&gorm.Config{})
 
 	if err!=nil{
 		return nil,fmt.Errorf("db connection failed: %w",err)
