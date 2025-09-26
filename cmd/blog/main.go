@@ -5,6 +5,7 @@ import (
 
 	"github.com/Sina-Mahmoodmoradi/blog/internal/delivery/http"
 	"github.com/Sina-Mahmoodmoradi/blog/pkg/config"
+	"github.com/Sina-Mahmoodmoradi/blog/pkg/database"
 	"github.com/joho/godotenv"
 )
 
@@ -19,7 +20,13 @@ func main(){
 	if err!=nil{
 		log.Fatalf("failed to load config: %v",err)
 	}
-	_ = cfg
+	
+	db,err := database.Connect(cfg)
+	if err!=nil{
+		log.Fatalf("database connection error: %v",err)
+	}
+
+	_ = db
 
 	r := http.SetupRouter()
 
