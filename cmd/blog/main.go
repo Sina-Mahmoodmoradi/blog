@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/Sina-Mahmoodmoradi/blog/internal/delivery/http"
+	delivery "github.com/Sina-Mahmoodmoradi/blog/internal/delivery/http"
 	"github.com/Sina-Mahmoodmoradi/blog/pkg/config"
 	"github.com/Sina-Mahmoodmoradi/blog/pkg/database"
 	"github.com/joho/godotenv"
@@ -28,7 +28,7 @@ func main(){
 
 	_ = db
 
-	r := http.SetupRouter()
+	r := delivery.SetupRouter()
 
 	r.Run(":8080")
 	
