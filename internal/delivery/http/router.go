@@ -11,7 +11,7 @@ import (
 func SetupRouter(db *gorm.DB)*gin.Engine{
 	r := gin.Default()
 
-	healthHandler := handler.NewHealthHandler()
+	healthHandler := handler.NewHealthHandler(db)
 	healthHandler.RegisterRoutes(r)
 
 
