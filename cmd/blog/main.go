@@ -28,7 +28,7 @@ func main(){
 
 	_ = db
 
-	r := delivery.SetupRouter()
+	r := delivery.SetupRouter(db)
 
 	r.Run(":8080")
 	
