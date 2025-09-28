@@ -26,7 +26,9 @@ func main(){
 		log.Fatalf("database connection error: %v",err)
 	}
 
-	_ = db
+	if err:=database.AutoMigrate(db);err!=nil{
+		log.Fatalf("migration failed: %v",err)
+	}
 
 	r := delivery.SetupRouter(db)
 
