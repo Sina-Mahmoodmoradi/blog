@@ -3,11 +3,9 @@ package database
 import (
 	"fmt"
 	"log"
-
-	"github.com/Sina-Mahmoodmoradi/blog/internal/repository/gorm/models"
+	"github.com/Sina-Mahmoodmoradi/blog/infrastructure/repository/models"
 	"gorm.io/gorm"
 )
-
 
 
 
