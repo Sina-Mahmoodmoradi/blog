@@ -26,7 +26,7 @@ func NewUserRepository(db *gorm.DB) usecase.UserRepository{
 
 func (r *UserRepository)FindByEmail(ctx context.Context,email string)(*entity.User,error){
 	user:= models.User{}
-	if err:=r.db.First(&user,"email = ?",email).Error;err!=nil{
+	if err:=r.db.WithContext(ctx).First(&user,"email = ?",email).Error;err!=nil{
 		return nil,err
 	}
 
@@ -36,7 +36,7 @@ func (r *UserRepository)FindByEmail(ctx context.Context,email string)(*entity.Us
 	
 func (r *UserRepository)FindByUsername(ctx context.Context,username string) (*entity.User, error){
 	user:= models.User{}
-	if err:=r.db.First(&user,"username = ?",username).Error;err!=nil{
+	if err:=r.db.WithContext(ctx).First(&user,"username = ?",username).Error;err!=nil{
 		return nil,err
 	}
 
@@ -46,7 +46,7 @@ func (r *UserRepository)FindByUsername(ctx context.Context,username string) (*en
 func (r *UserRepository)Save(ctx context.Context,user *entity.User) error{
 	
 	modelUser := ToModel(user)
-	if err:=r.db.Create(&modelUser).Error;err!=nil{
+	if err:=r.db.WithContext(ctx).Create(&modelUser).Error;err!=nil{
 		return fmt.Errorf("failed to create user: %w",err)
 	}
 
