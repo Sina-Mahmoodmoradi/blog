@@ -12,19 +12,19 @@ import (
 
 
 
-type UserRepository struct{
+type userRepository struct{
 	db *gorm.DB
 }
 
 
 func NewUserRepository(db *gorm.DB) usecase.UserRepository{
-	return &UserRepository{
+	return &userRepository{
 		db: db,
 	}
 }
 
 
-func (r *UserRepository)FindByEmail(ctx context.Context,email string)(*entity.User,error){
+func (r *userRepository)FindByEmail(ctx context.Context,email string)(*entity.User,error){
 	user:= models.User{}
 	if err:=r.db.WithContext(ctx).First(&user,"email = ?",email).Error;err!=nil{
 		return nil,err
@@ -34,7 +34,7 @@ func (r *UserRepository)FindByEmail(ctx context.Context,email string)(*entity.Us
 }
 
 	
-func (r *UserRepository)FindByUsername(ctx context.Context,username string) (*entity.User, error){
+func (r *userRepository)FindByUsername(ctx context.Context,username string) (*entity.User, error){
 	user:= models.User{}
 	if err:=r.db.WithContext(ctx).First(&user,"username = ?",username).Error;err!=nil{
 		return nil,err
@@ -43,7 +43,7 @@ func (r *UserRepository)FindByUsername(ctx context.Context,username string) (*en
 	return ToEntity(&user),nil
 }
 
-func (r *UserRepository)Save(ctx context.Context,user *entity.User) error{
+func (r *userRepository)Save(ctx context.Context,user *entity.User) error{
 	
 	modelUser := ToModel(user)
 	if err:=r.db.WithContext(ctx).Create(&modelUser).Error;err!=nil{
