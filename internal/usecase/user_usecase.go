@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/Sina-Mahmoodmoradi/blog/internal/entity"
 )
@@ -11,6 +12,7 @@ import (
 type UserUseCase struct{
 	repo UserRepository
 	hasher PasswordHasher 
+	tokenManager TokenManager
 }
 
 type RegisterUserRequest struct{
@@ -24,6 +26,18 @@ type RegisterUserResponse struct{
 	Username string
 	Email string
 }
+
+
+type LoginRequest struct{
+	Username string
+	Password string
+}
+
+type LoginResponse struct{
+	Token string
+}
+
+
 
 func NewUserUseCase(repo UserRepository,hasher PasswordHasher) *UserUseCase{
 	return &UserUseCase{
@@ -63,4 +77,24 @@ func (u *UserUseCase) Register(ctx context.Context,req *RegisterUserRequest)(*Re
 		Email: user.Email,
 	},nil
 
+}
+
+
+
+func (u *UserUseCase)Login(ctx context.Context, req *LoginRequest) (*LoginResponse,error){
+	user,err:=u.repo.FindByUsername(ctx,req.Username)
+	if err!=nil || user==nil{
+		return nil,fmt.Errorf("invalid credential")
+	}
+
+	if !u.hasher.Compare(user.PasswordHash,req.Password){
+		return nil,fmt.Errorf("invalid credential")
+	}
+
+	token,err := u.tokenManager.CreateToken(user.ID,time.Hour)
+	if err!=nil{
+		return nil,fmt.Errorf("failed to generate token: %w",err)
+	}
+
+	return &LoginResponse{Token: token},nil
 }
