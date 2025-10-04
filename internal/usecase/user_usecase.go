@@ -39,10 +39,11 @@ type LoginResponse struct{
 
 
 
-func NewUserUseCase(repo UserRepository,hasher PasswordHasher) *UserUseCase{
+func NewUserUseCase(repo UserRepository,hasher PasswordHasher,tokenManager TokenManager) *UserUseCase{
 	return &UserUseCase{
 		repo: repo,
 		hasher: hasher,
+		tokenManager: tokenManager,
 	}
 }
 
