@@ -30,7 +30,7 @@ func main(){
 		log.Fatalf("migration failed: %v",err)
 	}
 
-	r := delivery.SetupRouter(db)
+	r := delivery.SetupRouter(db,cfg)
 
 	r.Run(":8080")
 	
