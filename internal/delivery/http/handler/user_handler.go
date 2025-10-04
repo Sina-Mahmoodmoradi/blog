@@ -28,6 +28,15 @@ type RegisterResponse struct{
 	Email string `json:"email"`
 }
 
+type LoginRequest struct{
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+type LoginResponse struct{
+	Token string `json:"token"`
+}
+
 func NewUserHandler(useCase *usecase.UserUseCase) *userHandler{
 	return &userHandler{
 		useCase: useCase,
@@ -36,6 +45,7 @@ func NewUserHandler(useCase *usecase.UserUseCase) *userHandler{
 
 func (h *userHandler)RegisterRoutes(r *gin.Engine){
 	r.POST("/register",h.Register)
+	r.POST("/login",h.Login)
 }
 
 
@@ -64,4 +74,31 @@ func (h *userHandler)Register(c *gin.Context){
 		Email: ucResponse.Email,
 	})
 
+}
+
+func (h *userHandler)Login(c *gin.Context){
+	ctx := c.Request.Context()
+	var req LoginRequest
+
+	if err:=c.ShouldBind(&req);err!=nil{
+		c.JSON(http.StatusBadRequest,gin.H{
+			"error":err.Error(),
+		})
+		return
+	}
+	ucReq := usecase.LoginRequest{
+		Username: req.Username,
+		Password: req.Password,
+	}
+	ucRes,err := h.useCase.Login(ctx,&ucReq)
+	if err!=nil{
+		c.JSON(http.StatusUnauthorized,gin.H{
+			"error":err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK,LoginResponse{
+		Token: ucRes.Token,
+	})	
 }
