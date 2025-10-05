@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Sina-Mahmoodmoradi/blog/internal/entity"
@@ -29,7 +30,7 @@ type RegisterUserResponse struct{
 
 
 type LoginRequest struct{
-	Username string
+	Identifier string
 	Password string
 }
 
@@ -83,7 +84,14 @@ func (u *UserUseCase) Register(ctx context.Context,req *RegisterUserRequest)(*Re
 
 
 func (u *UserUseCase)Login(ctx context.Context, req *LoginRequest) (*LoginResponse,error){
-	user,err:=u.repo.FindByUsername(ctx,req.Username)
+	var user *entity.User
+	var err error
+	if strings.Contains(req.Identifier,"@"){
+		user,err = u.repo.FindByEmail(ctx,req.Identifier)
+	}else{
+		user,err = u.repo.FindByUsername(ctx,req.Identifier)
+	}
+	
 	if err!=nil || user==nil{
 		return nil,fmt.Errorf("invalid credential")
 	}

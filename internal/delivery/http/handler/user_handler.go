@@ -29,7 +29,7 @@ type RegisterResponse struct{
 }
 
 type LoginRequest struct{
-	Username string `json:"username" binding:"required"`
+	Identifier string `json:"identifier" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
@@ -87,7 +87,7 @@ func (h *userHandler)Login(c *gin.Context){
 		return
 	}
 	ucReq := usecase.LoginRequest{
-		Username: req.Username,
+		Identifier: req.Identifier,
 		Password: req.Password,
 	}
 	ucRes,err := h.useCase.Login(ctx,&ucReq)
