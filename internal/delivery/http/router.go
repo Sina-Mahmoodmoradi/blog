@@ -33,7 +33,7 @@ func SetupRouter(db *gorm.DB,cfg *config.Config)*gin.Engine{
 	userUseCase := usecase.NewUserUseCase(userRepo,hasher,tokenManager)
 
 	//handler
-	handler := handler.NewUserHandler(userUseCase)
+	handler := handler.NewUserHandler(userUseCase,tokenManager)
 	handler.RegisterRoutes(r)
 
 	return r
