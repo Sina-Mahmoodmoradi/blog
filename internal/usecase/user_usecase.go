@@ -107,3 +107,19 @@ func (u *UserUseCase)Login(ctx context.Context, req *LoginRequest) (*LoginRespon
 
 	return &LoginResponse{Token: token},nil
 }
+
+
+
+func (u *UserUseCase)GetByID(ctx context.Context, userID uint) (*RegisterUserResponse,error){
+	user, err := u.repo.FindByID(ctx,userID)
+
+	if err!=nil{
+		return nil,fmt.Errorf("failed to find user by id: %w",err)
+	}
+
+	return &RegisterUserResponse{
+		Username:user.Username,
+		Email:user.Email,
+		ID:user.ID,
+	},nil
+}
