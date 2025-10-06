@@ -43,6 +43,16 @@ func (r *userRepository)FindByUsername(ctx context.Context,username string) (*en
 	return ToEntity(&user),nil
 }
 
+func (r *userRepository)FindByID(ctx context.Context,id uint) (*entity.User, error){
+	user := models.User{}
+	if err:=r.db.WithContext(ctx).First(&user,id).Error;err!=nil{
+		return nil,err
+	}
+
+	return ToEntity(&user),nil
+}
+
+
 func (r *userRepository)Save(ctx context.Context,user *entity.User) error{
 	
 	modelUser := ToModel(user)
