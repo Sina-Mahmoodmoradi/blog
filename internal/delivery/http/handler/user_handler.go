@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/Sina-Mahmoodmoradi/blog/internal/delivery/http/middleware"
 	"github.com/Sina-Mahmoodmoradi/blog/internal/usecase"
 	"github.com/gin-gonic/gin"
 )
@@ -13,6 +14,7 @@ import (
 
 type userHandler struct{
 	useCase *usecase.UserUseCase
+	tokenManager usecase.TokenManager
 }
 
 
@@ -27,7 +29,7 @@ type RegisterResponse struct{
 	Username string `json:"username"`
 	Email string `json:"email"`
 }
-
+type CurrentUserResponse = RegisterResponse
 type LoginRequest struct{
 	Identifier string `json:"identifier" binding:"required"`
 	Password string `json:"password" binding:"required"`
@@ -37,15 +39,23 @@ type LoginResponse struct{
 	Token string `json:"token"`
 }
 
-func NewUserHandler(useCase *usecase.UserUseCase) *userHandler{
+func NewUserHandler(useCase *usecase.UserUseCase,tokenManager usecase.TokenManager) *userHandler{
 	return &userHandler{
 		useCase: useCase,
+		tokenManager: tokenManager,
 	}
 }
 
 func (h *userHandler)RegisterRoutes(r *gin.Engine){
 	r.POST("/register",h.Register)
 	r.POST("/login",h.Login)
+
+
+	auth:=r.Group("/auth")
+	auth.Use(middleware.AuthMiddleware(h.tokenManager))
+	{
+		auth.GET("/me",h.getCurrentUser)
+	}
 }
 
 
@@ -101,4 +111,26 @@ func (h *userHandler)Login(c *gin.Context){
 	c.JSON(http.StatusOK,LoginResponse{
 		Token: ucRes.Token,
 	})	
+}
+
+
+func (h *userHandler)getCurrentUser(c *gin.Context){
+	ctx := c.Request.Context()
+
+	userID,ok := c.Get("userID")
+	if !ok{
+		c.JSON(http.StatusUnauthorized,gin.H{"error":"unauthorized"})
+	}
+
+	user,err := h.useCase.GetByID(ctx,userID.(uint))
+	if err!=nil{
+		c.JSON(http.StatusNotFound,gin.H{"error":err.Error()})
+	}
+
+	c.JSON(http.StatusOK,CurrentUserResponse{
+		Username: user.Username,
+		Email: user.Email,
+		ID: user.ID,
+	})
+
 }
