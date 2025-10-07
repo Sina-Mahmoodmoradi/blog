@@ -34,3 +34,31 @@ func ToModelUser(u *entity.User) *models.User{
 		PasswordHash: u.PasswordHash,	
 	}
 }
+
+
+func ToEntityPost(p *models.Post) *entity.Post{
+	if p==nil{
+		return nil
+	}
+
+	return &entity.Post{
+		ID: p.ID,
+		Title: p.Title,
+		Content:p.Content,
+		AuthorID: p.AuthorID,
+	}
+}
+
+
+func ToModelPost(p *entity.Post) *models.Post{
+	if p==nil{
+		return nil
+	}
+
+	return &models.Post{
+		ID: p.ID,
+		Title: p.Title,
+		Content:p.Content,
+		AuthorID: p.AuthorID,	
+	}
+}
