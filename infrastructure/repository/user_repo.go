@@ -30,7 +30,7 @@ func (r *userRepository)FindByEmail(ctx context.Context,email string)(*entity.Us
 		return nil,err
 	}
 
-	return ToEntity(&user),nil
+	return ToEntityUser(&user),nil
 }
 
 	
@@ -40,7 +40,7 @@ func (r *userRepository)FindByUsername(ctx context.Context,username string) (*en
 		return nil,err
 	}
 
-	return ToEntity(&user),nil
+	return ToEntityUser(&user),nil
 }
 
 func (r *userRepository)FindByID(ctx context.Context,id uint) (*entity.User, error){
@@ -49,13 +49,13 @@ func (r *userRepository)FindByID(ctx context.Context,id uint) (*entity.User, err
 		return nil,err
 	}
 
-	return ToEntity(&user),nil
+	return ToEntityUser(&user),nil
 }
 
 
 func (r *userRepository)Save(ctx context.Context,user *entity.User) error{
 	
-	modelUser := ToModel(user)
+	modelUser := ToModelUser(user)
 	if err:=r.db.WithContext(ctx).Create(&modelUser).Error;err!=nil{
 		return fmt.Errorf("failed to create user: %w",err)
 	}

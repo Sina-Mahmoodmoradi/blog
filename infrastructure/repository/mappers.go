@@ -9,7 +9,7 @@ import (
 
 
 
-func ToEntity(u *models.User) *entity.User{
+func ToEntityUser(u *models.User) *entity.User{
 	if u==nil{
 		return nil
 	}
@@ -22,7 +22,7 @@ func ToEntity(u *models.User) *entity.User{
 	}
 }
 
-func ToModel(u *entity.User) *models.User{
+func ToModelUser(u *entity.User) *models.User{
 	if u==nil{
 		return nil
 	}
