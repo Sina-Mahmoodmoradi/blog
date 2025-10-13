@@ -28,13 +28,19 @@ func SetupRouter(db *gorm.DB,cfg *config.Config)*gin.Engine{
 
 	//Repos
 	userRepo := repository.NewUserRepository(db)
+	postRepo := repository.NewPostRepository(db)
 
 	//UseCase
 	userUseCase := usecase.NewUserUseCase(userRepo,hasher,tokenManager)
+	postUseCase := usecase.NewPostUseCase(postRepo)
 
 	//handler
-	handler := handler.NewUserHandler(userUseCase,tokenManager)
-	handler.RegisterRoutes(r)
+	userHandler := handler.NewUserHandler(userUseCase,tokenManager)
+	postHandler := handler.NewPostHandler(postUseCase,tokenManager)
+	
+	//registering routes
+	userHandler.RegisterRoutes(r)
+	postHandler.RegisterRoutes(r)
 
 	return r
 }
