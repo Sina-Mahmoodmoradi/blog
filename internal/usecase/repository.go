@@ -16,4 +16,6 @@ type UserRepository interface{
 
 type PostRepository interface{
 	Save(ctx context.Context,post *entity.Post) error
+	GetList(ctx context.Context ,AuthorID uint,offset ,limit int) ([]entity.Post,error)
+	Count(ctx context.Context,AuthorID uint)(int,error)
 }
