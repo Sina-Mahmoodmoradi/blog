@@ -13,3 +13,7 @@ type UserRepository interface{
 	FindByUsername(ctx context.Context,username string) (*entity.User, error)
 	Save(ctx context.Context,user *entity.User) error
 }
+
+type PostRepository interface{
+	Save(ctx context.Context,post *entity.Post) error
+}
