@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/Sina-Mahmoodmoradi/blog/internal/delivery/http/middleware"
 	"github.com/Sina-Mahmoodmoradi/blog/internal/usecase"
@@ -55,6 +56,7 @@ func (h *postHandler)RegisterRoutes(r *gin.Engine){
 	{
 		auth.POST("/",h.Create)
 		auth.GET("/",h.GetPosts)
+		auth.GET("/:id",h.GetPostById)
 	}
 }
 
@@ -137,4 +139,40 @@ func (h *postHandler)GetPosts(c *gin.Context){
 	})
 
 
+}
+
+
+
+
+
+func (h *postHandler)GetPostById(c *gin.Context){
+	idStr := c.Param("id")
+	intID,err:= strconv.Atoi(idStr)
+	if err!=nil{
+		c.JSON(http.StatusBadRequest,gin.H{"error":"invalid id"})
+		return
+	}
+	if intID<0{
+		c.JSON(http.StatusBadRequest,gin.H{"error":"id is positive"})
+		return
+	}
+	id := uint(intID)
+
+	ctx := c.Request.Context()
+	userID ,ok:=c.Get("userID") 
+	if !ok{
+		c.JSON(http.StatusUnauthorized,gin.H{"error":"unauthorized"})
+		return
+	}
+	post,err := h.useCase.GetPost(ctx,userID.(uint),id)
+	if err!=nil{
+		c.JSON(http.StatusInternalServerError,gin.H{"error":err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK,&PostResponse{
+		ID: post.ID,
+		Title: post.Title,
+		Content: post.Content,
+	})
 }
