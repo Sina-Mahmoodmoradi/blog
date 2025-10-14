@@ -53,3 +53,12 @@ func (r *PostRepository)Count(ctx context.Context,AuthorID uint)(int,error){
 
 	return int(count),nil
 }
+
+func (r *PostRepository)GetById(ctx context.Context, id uint)(*entity.Post,error){
+	var post models.Post
+	if err:=r.db.WithContext(ctx).First(&post,id).Error; err!=nil{
+		return nil,fmt.Errorf("failed to get post: %w",err)
+	}
+
+	return ToEntityPost(&post),nil
+}
