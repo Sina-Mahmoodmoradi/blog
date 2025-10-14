@@ -74,3 +74,19 @@ func (u *PostUseCase)GetAllPosts(ctx context.Context,req *GetPostsRequest)(*Pagi
 		Limit: req.Limit,
 	},nil
 }
+
+
+
+
+func (u *PostUseCase)GetPost(ctx context.Context,author_id, id uint)(*entity.Post,error){
+	post,err := u.repo.GetById(ctx,id)
+	if err!=nil{
+		return nil,err
+	}
+
+	if post.AuthorID!=author_id{
+		return nil,fmt.Errorf("post not found")
+	}
+
+	return post,nil
+}
