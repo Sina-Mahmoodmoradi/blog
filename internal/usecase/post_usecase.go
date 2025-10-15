@@ -33,6 +33,11 @@ type PaginatedPosts struct{
 	Limit int 
 }
 
+type UpdatePostRequest struct{
+	Title *string
+	Content *string
+}
+
 
 func NewPostUseCase(repo PostRepository) *PostUseCase{
 	return &PostUseCase{
@@ -89,4 +94,48 @@ func (u *PostUseCase)GetPost(ctx context.Context,author_id, id uint)(*entity.Pos
 	}
 
 	return post,nil
+}
+
+
+func (u *PostUseCase)UpdatePost(ctx context.Context, author_id, id uint, req *UpdatePostRequest)(*entity.Post,error){
+	post,err := u.repo.GetById(ctx,id)
+	if err!=nil{
+		return nil,err
+	}
+
+	if post.AuthorID!=author_id{
+		return nil,fmt.Errorf("post not found")
+	}
+
+	if req.Title!=nil{
+		post.Title = *req.Title
+	}
+
+	if req.Content!=nil{
+		post.Content = *req.Content
+	}
+
+	if err:=u.repo.Update(ctx,post);err!=nil{
+		return nil,fmt.Errorf("failed to update:%w",err)
+	}
+
+	return post,nil
+}
+
+
+func (u *PostUseCase)DeletePost(ctx context.Context, author_id, id uint)(error){
+	post,err := u.repo.GetById(ctx,id)
+	if err!=nil{
+		return err
+	}
+
+	if post.AuthorID!=author_id{
+		return fmt.Errorf("post not found")
+	}
+
+	if err:=u.repo.Delete(ctx,id);err!=nil{
+		return err
+	}
+
+	return nil
 }
