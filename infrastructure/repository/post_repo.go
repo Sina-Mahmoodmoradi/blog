@@ -62,3 +62,15 @@ func (r *PostRepository)GetById(ctx context.Context, id uint)(*entity.Post,error
 
 	return ToEntityPost(&post),nil
 }
+
+
+func (r *PostRepository)Update(ctx context.Context, post *entity.Post) error{
+	return r.db.WithContext(ctx).Save(post).Error
+}
+
+
+func (r *PostRepository)Delete(ctx context.Context, id uint) error{
+	return r.db.WithContext(ctx).Delete(&models.Post{},id).Error
+}
+
+
