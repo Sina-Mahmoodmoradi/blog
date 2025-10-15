@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -43,6 +44,12 @@ type GetPostsResponse struct{
 
 }
 
+type UpdatePostRequest struct{
+	Title *string   `json:"title"`
+	Content *string `json:"content"`
+}
+
+
 func NewPostHandler(useCase *usecase.PostUseCase,tokenManager usecase.TokenManager) *postHandler{
 	return &postHandler{
 		useCase: useCase,
@@ -57,6 +64,8 @@ func (h *postHandler)RegisterRoutes(r *gin.Engine){
 		auth.POST("/",h.Create)
 		auth.GET("/",h.GetPosts)
 		auth.GET("/:id",h.GetPostById)
+		auth.PATCH("/:id",h.Update)
+		auth.DELETE("/:id",h.Delete)
 	}
 }
 
@@ -176,3 +185,79 @@ func (h *postHandler)GetPostById(c *gin.Context){
 		Content: post.Content,
 	})
 }
+
+
+func (h *postHandler)Update(c *gin.Context){
+	var req UpdatePostRequest
+	if err:=c.ShouldBindJSON(&req);err!=nil{
+		c.JSON(http.StatusBadRequest,gin.H{"error":err.Error()})
+		return
+	}
+	fmt.Println(req)
+
+	idStr := c.Param("id")
+	intID,err:= strconv.Atoi(idStr)
+	if err!=nil{
+		c.JSON(http.StatusBadRequest,gin.H{"error":"invalid id"})
+		return
+	}
+	if intID<0{
+		c.JSON(http.StatusBadRequest,gin.H{"error":"id is positive"})
+		return
+	}
+	id := uint(intID)
+
+	userID ,ok:=c.Get("userID") 
+	if !ok{
+		c.JSON(http.StatusUnauthorized,gin.H{"error":"unauthorized"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	post,err:= h.useCase.UpdatePost(ctx,userID.(uint),id,&usecase.UpdatePostRequest{
+		Title: req.Title,
+		Content: req.Content,
+	})
+
+	if err!=nil{
+		c.JSON(http.StatusInternalServerError,gin.H{"error":err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK,&PostResponse{
+		ID: post.ID,
+		Title: post.Title,
+		Content: post.Content,
+	})
+}
+
+
+
+func (h *postHandler)Delete(c *gin.Context){
+	idStr := c.Param("id")
+	intID,err:= strconv.Atoi(idStr)
+	if err!=nil{
+		c.JSON(http.StatusBadRequest,gin.H{"error":"invalid id"})
+		return
+	}
+	if intID<0{
+		c.JSON(http.StatusBadRequest,gin.H{"error":"id is positive"})
+		return
+	}
+	id := uint(intID)
+
+	ctx := c.Request.Context()
+	userID ,ok:=c.Get("userID") 
+	if !ok{
+		c.JSON(http.StatusUnauthorized,gin.H{"error":"unauthorized"})
+		return
+	}
+	if err:=h.useCase.DeletePost(ctx,userID.(uint),id);err!=nil{
+		c.JSON(http.StatusInternalServerError,gin.H{"error":err.Error()})
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+	
+}
+
