@@ -62,3 +62,32 @@ func ToModelPost(p *entity.Post) *models.Post{
 		AuthorID: p.AuthorID,	
 	}
 }
+
+
+func ToEntityComment(c *models.Comment) *entity.Comment{
+	if c==nil{
+		return nil
+	}
+
+	return &entity.Comment{
+		ID: c.ID,
+		Content: c.Content,
+		AuthorID: c.AuthorID,
+		PostID: c.PostID,
+	}
+}
+
+
+
+func ToModelComment(c *entity.Comment) *models.Comment{
+	if c==nil{
+		return nil
+	}
+
+	return &models.Comment{
+		ID: c.ID,
+		Content: c.Content,
+		AuthorID: c.AuthorID,
+		PostID: c.PostID,
+	}
+}
