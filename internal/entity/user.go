@@ -6,5 +6,6 @@ type User struct{
 	Username string
 	Email string
 	PasswordHash string
-	Posts Post
+	Posts []Post
+	Comments []Comment
 }

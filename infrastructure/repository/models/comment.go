@@ -8,12 +8,15 @@ import (
 
 
 
-type Post struct{
+
+
+
+
+type Comment struct{
 	ID uint `gorm:"primaryKey"`
-	Title string
-	Comments []Comment `gorm:"foreignKey:PostID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Content string
 	AuthorID uint 
+	PostID uint 
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`

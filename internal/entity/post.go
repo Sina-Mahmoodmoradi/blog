@@ -7,4 +7,5 @@ type Post struct {
 	Title   string
 	Content string
 	AuthorID uint
+	Comments []Comment
 }
