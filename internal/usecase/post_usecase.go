@@ -89,9 +89,9 @@ func (u *PostUseCase)GetPost(ctx context.Context,author_id, id uint)(*entity.Pos
 		return nil,err
 	}
 
-	if post.AuthorID!=author_id{
-		return nil,fmt.Errorf("post not found")
-	}
+	// if post.AuthorID!=author_id{
+	// 	return nil,fmt.Errorf("post not found")
+	// }
 
 	return post,nil
 }
