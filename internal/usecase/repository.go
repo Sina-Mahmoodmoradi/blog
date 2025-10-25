@@ -22,3 +22,7 @@ type PostRepository interface{
 	Update(ctx context.Context, post *entity.Post) error
 	Delete(ctx context.Context, id uint) error
 }
+
+type CommentRepository interface{
+	Save(ctx context.Context, comment *entity.Comment)error
+}
