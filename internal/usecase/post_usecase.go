@@ -27,7 +27,7 @@ type GetPostsRequest struct{
 }
 
 type PaginatedPosts struct{
-	Posts []entity.Post
+	Posts []*entity.Post
 	Total int
 	Page int
 	Limit int 
