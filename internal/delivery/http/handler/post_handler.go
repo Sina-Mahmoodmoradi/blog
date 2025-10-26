@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/Sina-Mahmoodmoradi/blog/internal/delivery/http/handler/dto"
 	"github.com/Sina-Mahmoodmoradi/blog/internal/delivery/http/middleware"
 	"github.com/Sina-Mahmoodmoradi/blog/internal/usecase"
 	"github.com/gin-gonic/gin"
@@ -29,10 +29,7 @@ type CreatePostResponse struct{
 	Content string `json:"content"`
 }
 
-type PaginationQuery struct{
-	Page int `form:"page" binding:"min=1"`
-	Limit int `form:"limit" binding:"min=1,max=100"`
-}
+
 
 type PostResponse = CreatePostResponse
 
@@ -105,7 +102,7 @@ func (h *postHandler)Create(c *gin.Context){
 
 
 func (h *postHandler)GetPosts(c *gin.Context){
-	q := PaginationQuery{
+	q := dto.PaginationQuery{
 		Page: 1,
 		Limit: 10,
 	}
@@ -193,7 +190,6 @@ func (h *postHandler)Update(c *gin.Context){
 		c.JSON(http.StatusBadRequest,gin.H{"error":err.Error()})
 		return
 	}
-	fmt.Println(req)
 
 	idStr := c.Param("id")
 	intID,err:= strconv.Atoi(idStr)
