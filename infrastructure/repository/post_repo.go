@@ -30,15 +30,15 @@ func (r *PostRepository) Save(ctx context.Context,post *entity.Post) error{
 	return nil
 }
 
-func (r *PostRepository)GetList(ctx context.Context ,AuthorID uint,offset ,limit int) ([]entity.Post,error){
+func (r *PostRepository)GetList(ctx context.Context ,AuthorID uint,offset ,limit int) ([]*entity.Post,error){
 	var posts []models.Post
 	if err:=r.db.WithContext(ctx).Where("author_id = ?", AuthorID).Order("created_at desc").Limit(limit).Offset(offset).Find(&posts).Error; err!=nil{
 		return nil,fmt.Errorf("failed to get posts %w",err)
 	}
-
-	entityPosts := make([]entity.Post,0,len(posts))
+	
+	entityPosts := make([]*entity.Post,0,len(posts))
 	for _,post:=range posts{
-		entityPosts = append(entityPosts, *ToEntityPost(&post))
+		entityPosts = append(entityPosts, ToEntityPost(&post))
 	}
 
 	return  entityPosts,nil
