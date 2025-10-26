@@ -16,7 +16,7 @@ type UserRepository interface{
 
 type PostRepository interface{
 	Save(ctx context.Context,post *entity.Post) error
-	GetList(ctx context.Context ,AuthorID uint,offset ,limit int) ([]entity.Post,error)
+	GetList(ctx context.Context ,AuthorID uint,offset ,limit int) ([]*entity.Post,error)
 	Count(ctx context.Context,AuthorID uint)(int,error)
 	GetById(ctx context.Context, id uint)(*entity.Post,error)
 	Update(ctx context.Context, post *entity.Post) error
@@ -25,4 +25,6 @@ type PostRepository interface{
 
 type CommentRepository interface{
 	Save(ctx context.Context, comment *entity.Comment)error
+	GetList(ctx context.Context ,PostID uint,offset ,limit int) ([]*entity.Comment,error)
+	Count(ctx context.Context,PostID uint)(int,error)
 }
