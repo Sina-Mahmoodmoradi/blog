@@ -24,6 +24,7 @@ type CreateCommentRequest struct{
 	Content string
 }
 
+
 type GetCommentsRequest struct{
 	PostID uint
 	Page int
@@ -84,4 +85,38 @@ func (uc *CommentUseCase) GetAllComments(ctx context.Context,req *GetCommentsReq
 		Limit: req.Limit,
 	},nil
 
+}
+
+
+// func (uc *CommentUseCase) GetComment(ctx context.Context,commentID uint)(*entity.Comment,error){
+// 	comment,err := uc.repo.GetById(ctx,commentID)
+// 	if err!=nil{
+// 		return nil,fmt.Errorf("failed to get comment: %w",err)
+// 	}
+
+// 	return comment,nil
+// }
+
+
+
+func (uc *CommentUseCase) UpdateComment(ctx context.Context,authorID,id uint,content string)(*entity.Comment,error){
+	comment ,err := uc.repo.GetById(ctx,id)
+	if err!=nil{
+		return nil,fmt.Errorf("failed to get comment: %w",err)
+	}
+
+	if authorID!=comment.AuthorID{
+		return nil,fmt.Errorf("unauthorized: cannot edit another users comment")
+	}
+
+	if content==""{
+		return nil,fmt.Errorf("comment content cannot be empty")
+	}
+	comment.Content = content
+
+	if err:=uc.repo.Update(ctx,comment);err!=nil{
+		return nil,fmt.Errorf("failed to update comment: %w",err)
+	}
+
+	return comment,nil
 }

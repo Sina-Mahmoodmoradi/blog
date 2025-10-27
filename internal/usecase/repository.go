@@ -27,4 +27,7 @@ type CommentRepository interface{
 	Save(ctx context.Context, comment *entity.Comment)error
 	GetList(ctx context.Context ,PostID uint,offset ,limit int) ([]*entity.Comment,error)
 	Count(ctx context.Context,PostID uint)(int,error)
+	GetById(ctx context.Context, id uint)(*entity.Comment,error)
+	Update(ctx context.Context, comment *entity.Comment) error
+
 }

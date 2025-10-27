@@ -52,3 +52,18 @@ func (r *CommentRepository)Count(ctx context.Context,postID uint)(int,error){
 	}
 	return int(count),nil
 }
+
+
+func (r *CommentRepository)GetById(ctx context.Context, id uint)(*entity.Comment,error){
+	var modelComment models.Comment
+	if err:=r.db.WithContext(ctx).First(&modelComment,id).Error;err!=nil{
+		return nil,err
+	}
+
+	return ToEntityComment(&modelComment),nil
+}
+
+func (r *CommentRepository)Update(ctx context.Context, comment *entity.Comment) error{
+	return r.db.WithContext(ctx).Save(comment).Error
+}
+
