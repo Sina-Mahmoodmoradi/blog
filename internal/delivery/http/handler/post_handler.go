@@ -60,9 +60,9 @@ func (h *postHandler)RegisterRoutes(r *gin.Engine){
 	{
 		auth.POST("/",h.Create)
 		auth.GET("/",h.GetPosts)
-		auth.GET("/:id",h.GetPostById)
-		auth.PATCH("/:id",h.Update)
-		auth.DELETE("/:id",h.Delete)
+		auth.GET("/:postId",h.GetPostById)
+		auth.PATCH("/:postId",h.Update)
+		auth.DELETE("/:postId",h.Delete)
 	}
 }
 
@@ -152,7 +152,7 @@ func (h *postHandler)GetPosts(c *gin.Context){
 
 
 func (h *postHandler)GetPostById(c *gin.Context){
-	idStr := c.Param("id")
+	idStr := c.Param("postId")
 	intID,err:= strconv.Atoi(idStr)
 	if err!=nil{
 		c.JSON(http.StatusBadRequest,gin.H{"error":"invalid id"})
@@ -191,7 +191,7 @@ func (h *postHandler)Update(c *gin.Context){
 		return
 	}
 
-	idStr := c.Param("id")
+	idStr := c.Param("postId")
 	intID,err:= strconv.Atoi(idStr)
 	if err!=nil{
 		c.JSON(http.StatusBadRequest,gin.H{"error":"invalid id"})
@@ -230,7 +230,7 @@ func (h *postHandler)Update(c *gin.Context){
 
 
 func (h *postHandler)Delete(c *gin.Context){
-	idStr := c.Param("id")
+	idStr := c.Param("postId")
 	intID,err:= strconv.Atoi(idStr)
 	if err!=nil{
 		c.JSON(http.StatusBadRequest,gin.H{"error":"invalid id"})
