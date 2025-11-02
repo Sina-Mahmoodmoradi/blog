@@ -54,7 +54,7 @@ func (h *commentHandler)RegisterRoutes(r *gin.Engine){
 		auth.GET("/",h.GetComments)
 		// auth.GET("/:id",h.GetCommentById)
 		auth.PATCH("/:id",h.Update)
-		// auth.DELETE("/:id",h.Delete)
+		auth.DELETE("/:id",h.Delete)
 	}
 }
 
@@ -205,4 +205,34 @@ func (h *commentHandler)Update(c *gin.Context){
 		Content: comment.Content,
 	})
 
+}
+
+
+func (h *commentHandler)Delete(c *gin.Context){
+	idStr := c.Param("id")
+	idInt,err := strconv.Atoi(idStr)
+	if err!=nil{
+		c.JSON(http.StatusBadRequest,gin.H{"error":"invalid comment id"})
+		return
+	}
+	if idInt<=0{
+		c.JSON(http.StatusBadRequest,gin.H{"error":"invalid comment id"})
+		return
+	}
+	id := uint(idInt)
+
+	userID,ok := c.Get("userID")
+		if !ok{
+		c.JSON(http.StatusUnauthorized,gin.H{"error":"unauthorized"})
+		return
+	}
+
+	ctx := c.Request.Context()
+
+	if err:=h.useCase.DeleteComment(ctx,userID.(uint),id);err!=nil{
+		c.JSON(http.StatusInternalServerError,gin.H{"error":err.Error()})
+		return
+	}
+
+	c.Status(http.StatusNoContent)
 }

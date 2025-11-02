@@ -120,3 +120,21 @@ func (uc *CommentUseCase) UpdateComment(ctx context.Context,authorID,id uint,con
 
 	return comment,nil
 }
+
+
+func (u *CommentUseCase)DeleteComment(ctx context.Context, author_id, id uint)(error){
+	comment,err := u.repo.GetById(ctx,id)
+	if err!=nil{
+		return err
+	}
+
+	if comment.AuthorID!=author_id{
+		return fmt.Errorf("unauthorized: cannot delete another users comment")
+	}
+
+	if err:=u.repo.Delete(ctx,id);err!=nil{
+		return err
+	}
+
+	return nil
+}

@@ -67,3 +67,6 @@ func (r *CommentRepository)Update(ctx context.Context, comment *entity.Comment) 
 	return r.db.WithContext(ctx).Save(comment).Error
 }
 
+func (r *CommentRepository)Delete(ctx context.Context, id uint) error{
+	return r.db.WithContext(ctx).Delete(&models.Comment{},id).Error
+}
