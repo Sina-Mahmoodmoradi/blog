@@ -12,6 +12,7 @@ import (
 
 type PostUseCase struct{
 	repo PostRepository
+	commentRepo CommentRepository
 }
 
 type CreatePostRequest struct{
@@ -39,9 +40,10 @@ type UpdatePostRequest struct{
 }
 
 
-func NewPostUseCase(repo PostRepository) *PostUseCase{
+func NewPostUseCase(repo PostRepository, commentRepo CommentRepository) *PostUseCase{
 	return &PostUseCase{
 		repo: repo,
+		commentRepo: commentRepo,
 	}
 }
 
@@ -83,17 +85,22 @@ func (u *PostUseCase)GetAllPosts(ctx context.Context,req *GetPostsRequest)(*Pagi
 
 
 
-func (u *PostUseCase)GetPost(ctx context.Context,author_id, id uint)(*entity.Post,error){
-	post,err := u.repo.GetById(ctx,id)
+func (u *PostUseCase)GetPost(ctx context.Context,author_id, id uint)(*entity.Post,bool,error){
+	post,err := u.repo.GetByIdWithComments(ctx,id,5)
 	if err!=nil{
-		return nil,err
+		return nil,false,err
 	}
+	totalComments,err := u.commentRepo.Count(ctx,id)
+	if err!=nil{
+		return nil,false,err
+	}
+	hasMoreComments := totalComments > 5
 
 	// if post.AuthorID!=author_id{
 	// 	return nil,fmt.Errorf("post not found")
 	// }
 
-	return post,nil
+	return post,hasMoreComments,nil
 }
 
 

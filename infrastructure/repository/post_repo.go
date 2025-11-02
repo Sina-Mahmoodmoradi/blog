@@ -63,6 +63,16 @@ func (r *PostRepository)GetById(ctx context.Context, id uint)(*entity.Post,error
 	return ToEntityPost(&post),nil
 }
 
+func (r *PostRepository)GetByIdWithComments(ctx context.Context, id uint, limit int)(*entity.Post,error){
+	var post models.Post
+	if err:=r.db.WithContext(ctx).Preload("Comments",func (db *gorm.DB)*gorm.DB{
+		return db.Order("created_at desc").Limit(limit)
+	}).First(&post,id).Error; err!=nil{
+		return nil,fmt.Errorf("failed to get post: %w",err)
+	}
+
+	return ToEntityPost(&post),nil
+}
 
 func (r *PostRepository)Update(ctx context.Context, post *entity.Post) error{
 	return r.db.WithContext(ctx).Save(post).Error

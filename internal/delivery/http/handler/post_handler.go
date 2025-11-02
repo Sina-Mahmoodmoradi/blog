@@ -31,7 +31,13 @@ type CreatePostResponse struct{
 
 
 
-type PostResponse = CreatePostResponse
+type PostResponse struct{
+	ID uint `json:"id"`
+	Title string `json:"title"`
+	Content string `json:"content"`
+	Comments []CommentResponse `json:"comments"`
+	CommentsTruncated bool `json:"comments_truncated"`
+} 
 
 type GetPostsResponse struct{
 	Posts []PostResponse `json:"posts"`
@@ -170,17 +176,27 @@ func (h *postHandler)GetPostById(c *gin.Context){
 		c.JSON(http.StatusUnauthorized,gin.H{"error":"unauthorized"})
 		return
 	}
-	post,err := h.useCase.GetPost(ctx,userID.(uint),id)
+	post,hasMoreComments,err := h.useCase.GetPost(ctx,userID.(uint),id)
 	if err!=nil{
 		c.JSON(http.StatusInternalServerError,gin.H{"error":err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK,&PostResponse{
-		ID: post.ID,
-		Title: post.Title,
-		Content: post.Content,
-	})
+	postResponse := &PostResponse{
+		ID:       post.ID,
+		Title:    post.Title,
+		Content:  post.Content,
+		Comments: make([]CommentResponse, len(post.Comments)),
+		CommentsTruncated: hasMoreComments,
+	}
+	for i, comment := range post.Comments {
+		postResponse.Comments[i] = CommentResponse{
+			ID:      comment.ID,
+			Content: comment.Content,
+			AuthorID: comment.AuthorID,
+		}
+	}
+	c.JSON(http.StatusOK,postResponse)
 }
 
 

@@ -19,6 +19,7 @@ type PostRepository interface{
 	GetList(ctx context.Context ,AuthorID uint,offset ,limit int) ([]*entity.Post,error)
 	Count(ctx context.Context,AuthorID uint)(int,error)
 	GetById(ctx context.Context, id uint)(*entity.Post,error)
+	GetByIdWithComments(ctx context.Context, id uint, limit int)(*entity.Post,error)
 	Update(ctx context.Context, post *entity.Post) error
 	Delete(ctx context.Context, id uint) error
 }

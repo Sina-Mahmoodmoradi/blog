@@ -41,12 +41,17 @@ func ToEntityPost(p *models.Post) *entity.Post{
 		return nil
 	}
 
-	return &entity.Post{
+	posts := &entity.Post{
 		ID: p.ID,
 		Title: p.Title,
 		Content:p.Content,
 		AuthorID: p.AuthorID,
+		Comments: make([]entity.Comment, len(p.Comments)),
 	}
+	for i, comment := range p.Comments {
+		posts.Comments[i] = *ToEntityComment(&comment)
+	}
+	return posts
 }
 
 
@@ -55,12 +60,17 @@ func ToModelPost(p *entity.Post) *models.Post{
 		return nil
 	}
 
-	return &models.Post{
+	posts := &models.Post{
 		ID: p.ID,
 		Title: p.Title,
 		Content:p.Content,
 		AuthorID: p.AuthorID,	
+		Comments: make([]models.Comment, len(p.Comments)),
 	}
+	for i, comment := range p.Comments {
+		posts.Comments[i] = *ToModelComment(&comment)
+	}
+	return posts
 }
 
 
