@@ -47,9 +47,13 @@ func ToEntityPost(p *models.Post) *entity.Post{
 		Content:p.Content,
 		AuthorID: p.AuthorID,
 		Comments: make([]entity.Comment, len(p.Comments)),
+		Tags: make([]entity.Tag, len(p.Tags)),
 	}
 	for i, comment := range p.Comments {
 		posts.Comments[i] = *ToEntityComment(&comment)
+	}
+	for i, tag := range p.Tags {
+		posts.Tags[i] = *ToEntityTag(&tag)
 	}
 	return posts
 }
@@ -66,9 +70,13 @@ func ToModelPost(p *entity.Post) *models.Post{
 		Content:p.Content,
 		AuthorID: p.AuthorID,	
 		Comments: make([]models.Comment, len(p.Comments)),
+		Tags: make([]models.Tag, len(p.Tags)),
 	}
 	for i, comment := range p.Comments {
 		posts.Comments[i] = *ToModelComment(&comment)
+	}
+	for i, tag := range p.Tags {
+		posts.Tags[i] = *ToModelTag(&tag)
 	}
 	return posts
 }
@@ -100,4 +108,39 @@ func ToModelComment(c *entity.Comment) *models.Comment{
 		AuthorID: c.AuthorID,
 		PostID: c.PostID,
 	}
+}
+
+
+
+func ToEntityTag(t *models.Tag) *entity.Tag{
+	if t==nil{
+		return nil
+	}
+
+	entityTag := &entity.Tag{
+		ID: t.ID,
+		Name: t.Name,
+		Posts: make([]entity.Post, len(t.Posts)),
+	}
+	for i, post := range t.Posts {
+		entityTag.Posts[i] = *ToEntityPost(&post)
+	}
+	return entityTag
+}
+
+func ToModelTag(t *entity.Tag) *models.Tag{
+	if t==nil{
+		return nil
+	}
+
+	modelsTag := &models.Tag{
+		ID: t.ID,
+		Name: t.Name,
+		Posts: make([]models.Post, len(t.Posts)),
+	}
+
+	for i, post := range t.Posts {
+		modelsTag.Posts[i] = *ToModelPost(&post)
+	}
+	return modelsTag
 }

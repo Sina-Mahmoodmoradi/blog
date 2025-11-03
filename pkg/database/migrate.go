@@ -11,7 +11,7 @@ import (
 
 
 func AutoMigrate(db *gorm.DB) error{
-	err:= db.AutoMigrate(&models.User{},&models.Post{},&models.Comment{})
+	err:= db.AutoMigrate(&models.User{},&models.Post{},&models.Comment{},&models.Tag{})
 	
 	if err!=nil{
 		return fmt.Errorf("migration failed: %w",err)

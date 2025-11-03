@@ -8,4 +8,5 @@ type Post struct {
 	Content string
 	AuthorID uint
 	Comments []Comment
+	Tags []Tag
 }
