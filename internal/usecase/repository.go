@@ -22,6 +22,7 @@ type PostRepository interface{
 	GetByIdWithComments(ctx context.Context, id uint, limit int)(*entity.Post,error)
 	Update(ctx context.Context, post *entity.Post) error
 	Delete(ctx context.Context, id uint) error
+	AppendTags(ctx context.Context, post *entity.Post,tags []*entity.Tag) error
 }
 
 type CommentRepository interface{
@@ -32,4 +33,9 @@ type CommentRepository interface{
 	Update(ctx context.Context, comment *entity.Comment) error
 	Delete(ctx context.Context, id uint) error
 
+}
+
+
+type TagRepository interface{
+	GetOrCreateTags(ctx context.Context,tagNames []string)([]*entity.Tag,error)
 }

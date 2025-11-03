@@ -83,4 +83,18 @@ func (r *PostRepository)Delete(ctx context.Context, id uint) error{
 	return r.db.WithContext(ctx).Delete(&models.Post{},id).Error
 }
 
+func (r *PostRepository)AppendTags(ctx context.Context, post *entity.Post,tags []*entity.Tag) error{
+	modelTags := make([]interface{},len(tags))
+	for i,tag :=range tags{
+		modelTags[i] = ToModelTag(tag)
+	}
+	modelPost := ToModelPost(post)
+
+	if err:=r.db.WithContext(ctx).Model(modelPost).Association("Tags").Append(modelTags...);err!=nil{
+		return fmt.Errorf("failed to append tags: %w",err)
+	}
+	return nil
+}
+
+
 
