@@ -44,10 +44,53 @@ func (r *PostRepository)GetList(ctx context.Context ,AuthorID uint,offset ,limit
 	return  entityPosts,nil
 }
 
+func (r *PostRepository)GetListByTags(ctx context.Context ,authorID *uint, tagNames []string,offset ,limit int) ([]*entity.Post,error){
+	var posts []models.Post
+	query:=r.db.WithContext(ctx).
+	Joins("JOIN post_tags ON post_tags.post_id = posts.id").
+	Joins("JOIN tags ON post_tags.tag_id = tags.id").
+	Where("tags.name IN ?",tagNames).Group("posts.id")
+
+	if authorID!=nil{
+		query = query.Where("posts.author_id = ?",*authorID)
+	}
+
+	if err:=query.Order("posts.created_at desc").
+	Limit(limit).Offset(offset).
+	Find(&posts).Error; err!=nil{
+		return nil,fmt.Errorf("failed to get posts %w",err)
+	}
+	
+	entityPosts := make([]*entity.Post,0,len(posts))
+	for _,post:=range posts{
+		entityPosts = append(entityPosts, ToEntityPost(&post))
+	}
+
+	return  entityPosts,nil
+}
+
 
 func (r *PostRepository)Count(ctx context.Context,AuthorID uint)(int,error){
 	var count int64
 	if err:=r.db.Model(&models.Post{}).Count(&count).Error;err!=nil{
+		return 0,fmt.Errorf("failed to count posts %w",err)
+	}
+
+	return int(count),nil
+}
+
+func (r *PostRepository)CountByTags(ctx context.Context,authorID *uint,tagNames []string)(int,error){
+	var count int64
+	query:= r.db.Model(&models.Post{}).
+	Joins("JOIN post_tags ON post_tags.post_id = posts.id").
+	Joins("JOIN tags ON post_tags.tag_id = tags.id").
+	Where("tags.name IN ?",tagNames).Distinct("posts.id")
+
+	if authorID!=nil{
+		query = query.Where("posts.author_id = ?",*authorID)
+	}
+
+	if err:=query.Count(&count).Error;err!=nil{
 		return 0,fmt.Errorf("failed to count posts %w",err)
 	}
 

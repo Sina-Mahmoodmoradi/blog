@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
-	"github.com/Sina-Mahmoodmoradi/blog/internal/delivery/http/handler/dto"
 	"github.com/Sina-Mahmoodmoradi/blog/internal/delivery/http/middleware"
 	"github.com/Sina-Mahmoodmoradi/blog/internal/usecase"
 	"github.com/gin-gonic/gin"
@@ -44,6 +44,13 @@ type GetPostsResponse struct{
 	Total int 			 `json:"total"`
 	Page int 			 `json:"Page"`
 	Limit int 			 `json:"limit"`
+
+}
+
+type GetPostsQuery struct{
+	Page int `form:"page" binding:"min=1"`
+	Limit int `form:"limit" binding:"min=1,max=100"`
+	Tags  string `form:"tags" binding:"omitempty"`
 
 }
 
@@ -108,7 +115,7 @@ func (h *postHandler)Create(c *gin.Context){
 
 
 func (h *postHandler)GetPosts(c *gin.Context){
-	q := dto.PaginationQuery{
+	q := GetPostsQuery{
 		Page: 1,
 		Limit: 10,
 	}
@@ -118,16 +125,24 @@ func (h *postHandler)GetPosts(c *gin.Context){
 		return
 	}
 
-	userID ,ok:=c.Get("userID") 
-	if !ok{
-		c.JSON(http.StatusUnauthorized,gin.H{"error":"unauthorized"})
-		return
+	tagNames := []string{}
+	if q.Tags != "" {
+		for tag := range strings.SplitSeq(q.Tags, ",") {
+			tagNames = append(tagNames, strings.TrimSpace(tag))
+		}
 	}
+
+	// userID ,ok:=c.Get("userID") 
+	// if !ok{
+	// 	c.JSON(http.StatusUnauthorized,gin.H{"error":"unauthorized"})
+	// 	return
+	// }
 	ctx := c.Request.Context()
 	paginatedPosts,err :=h.useCase.GetAllPosts(ctx,&usecase.GetPostsRequest{
-		AuthorID: userID.(uint),
+		AuthorID: nil,
 		Page: q.Page,
 		Limit: q.Limit,
+		TagNames: tagNames,
 	})
 	if err!=nil{
 		c.JSON(http.StatusInternalServerError,gin.H{"error":err.Error()})
