@@ -42,6 +42,11 @@ func (r *PostRepository)GetList(ctx context.Context ,filter *usecase.PostFilter)
 		Group("posts.id")
 	}
 
+	if filter.Search != "" {
+		pattern := "%" + filter.Search + "%"
+		query = query.Where("posts.title LIKE ? OR posts.content LIKE ?", pattern, pattern)
+	}
+
 	if filter.AuthorID != nil {
 		query = query.Where("author_id = ?", *filter.AuthorID)
 	}
@@ -100,6 +105,11 @@ func (r *PostRepository)Count(ctx context.Context,filter *usecase.PostFilter)(in
 		Joins("JOIN tags ON post_tags.tag_id = tags.id").
 		Where("tags.name IN ?", filter.Tags).
 		Distinct("posts.id")
+	}
+
+	if filter.Search != "" {
+		pattern := "%" + filter.Search + "%"
+		query = query.Where("posts.title LIKE ? OR posts.content LIKE ?", pattern, pattern)
 	}
 
 	if filter.AuthorID != nil {

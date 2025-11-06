@@ -51,6 +51,7 @@ type GetPostsQuery struct{
 	Page int `form:"page" binding:"min=1"`
 	Limit int `form:"limit" binding:"min=1,max=100"`
 	Tags  string `form:"tags" binding:"omitempty"`
+	Search string `form:"search" binding:"omitempty"`
 
 }
 
@@ -143,6 +144,7 @@ func (h *postHandler)GetPosts(c *gin.Context){
 		Page: q.Page,
 		Limit: q.Limit,
 		TagNames: tagNames,
+		Search: q.Search,
 	})
 	if err!=nil{
 		c.JSON(http.StatusInternalServerError,gin.H{"error":err.Error()})
