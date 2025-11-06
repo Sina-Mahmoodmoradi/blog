@@ -16,10 +16,8 @@ type UserRepository interface{
 
 type PostRepository interface{
 	Save(ctx context.Context,post *entity.Post) error
-	GetList(ctx context.Context ,AuthorID *uint,offset ,limit int) ([]*entity.Post,error)
-	GetListByTags(ctx context.Context ,AuthorID *uint,tagNames []string,offset ,limit int) ([]*entity.Post,error)
-	Count(ctx context.Context,AuthorID *uint)(int,error)
-	CountByTags(ctx context.Context,AuthorID *uint,tagNames []string)(int,error)
+	GetList(ctx context.Context ,filter *PostFilter)([]*entity.Post,error)
+	Count(ctx context.Context,filter *PostFilter)(int,error)
 	GetById(ctx context.Context, id uint)(*entity.Post,error)
 	GetByIdWithComments(ctx context.Context, id uint, limit int)(*entity.Post,error)
 	Update(ctx context.Context, post *entity.Post) error
@@ -40,4 +38,13 @@ type CommentRepository interface{
 
 type TagRepository interface{
 	GetOrCreateTags(ctx context.Context,tagNames []string)([]*entity.Tag,error)
+}
+
+
+type PostFilter struct {
+	AuthorID *uint
+	Tags     []string
+	Search   string
+	Offset   int
+	Limit    int
 }

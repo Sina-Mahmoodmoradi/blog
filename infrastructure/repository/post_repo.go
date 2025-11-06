@@ -30,15 +30,27 @@ func (r *PostRepository) Save(ctx context.Context,post *entity.Post) error{
 	return nil
 }
 
-func (r *PostRepository)GetList(ctx context.Context ,AuthorID *uint,offset ,limit int) ([]*entity.Post,error){
+func (r *PostRepository)GetList(ctx context.Context ,filter *usecase.PostFilter)([]*entity.Post,error){
 	var posts []models.Post
 	query := r.db.WithContext(ctx)
 
-	if AuthorID != nil {
-		query = query.Where("author_id = ?", *AuthorID)
+	if len(filter.Tags) > 0 {
+		query = query.
+		Joins("JOIN post_tags ON post_tags.post_id = posts.id").
+		Joins("JOIN tags ON post_tags.tag_id = tags.id").
+		Where("tags.name IN ?", filter.Tags).
+		Group("posts.id")
 	}
 
-	if err := query.Order("created_at desc").Limit(limit).Offset(offset).Find(&posts).Error; err != nil {
+	if filter.AuthorID != nil {
+		query = query.Where("author_id = ?", *filter.AuthorID)
+	}
+
+	if err := query.
+	Order("posts.created_at desc").
+	Limit(filter.Limit).
+	Offset(filter.Offset).
+	Find(&posts).Error; err != nil {
 		return nil, fmt.Errorf("failed to get posts %w", err)
 	}
 	
@@ -50,38 +62,48 @@ func (r *PostRepository)GetList(ctx context.Context ,AuthorID *uint,offset ,limi
 	return  entityPosts,nil
 }
 
-func (r *PostRepository)GetListByTags(ctx context.Context ,authorID *uint, tagNames []string,offset ,limit int) ([]*entity.Post,error){
-	var posts []models.Post
-	query:=r.db.WithContext(ctx).
-	Joins("JOIN post_tags ON post_tags.post_id = posts.id").
-	Joins("JOIN tags ON post_tags.tag_id = tags.id").
-	Where("tags.name IN ?",tagNames).Group("posts.id")
+// func (r *PostRepository)GetListByTags(ctx context.Context ,authorID *uint, tagNames []string,offset ,limit int) ([]*entity.Post,error){
+// 	var posts []models.Post
+// 	query:=r.db.WithContext(ctx).
+// 	Joins("JOIN post_tags ON post_tags.post_id = posts.id").
+// 	Joins("JOIN tags ON post_tags.tag_id = tags.id").
+// 	Where("tags.name IN ?",tagNames).Group("posts.id")
 
-	if authorID!=nil{
-		query = query.Where("posts.author_id = ?",*authorID)
-	}
+// 	if authorID!=nil{
+// 		query = query.Where("posts.author_id = ?",*authorID)
+// 	}
 
-	if err:=query.Order("posts.created_at desc").
-	Limit(limit).Offset(offset).
-	Find(&posts).Error; err!=nil{
-		return nil,fmt.Errorf("failed to get posts %w",err)
-	}
+// 	if err:=query.
+// 	Order("posts.created_at desc").
+// 	Limit(limit).
+// 	Offset(offset).
+// 	Find(&posts).Error; err!=nil{
+// 		return nil,fmt.Errorf("failed to get posts %w",err)
+// 	}
 	
-	entityPosts := make([]*entity.Post,0,len(posts))
-	for _,post:=range posts{
-		entityPosts = append(entityPosts, ToEntityPost(&post))
-	}
+// 	entityPosts := make([]*entity.Post,0,len(posts))
+// 	for _,post:=range posts{
+// 		entityPosts = append(entityPosts, ToEntityPost(&post))
+// 	}
 
-	return  entityPosts,nil
-}
+// 	return  entityPosts,nil
+// }
 
 
-func (r *PostRepository)Count(ctx context.Context,AuthorID *uint)(int,error){
+func (r *PostRepository)Count(ctx context.Context,filter *usecase.PostFilter)(int,error){
 	var count int64
 	query := r.db.Model(&models.Post{})
-	
-	if AuthorID != nil {
-		query = query.Where("author_id = ?", *AuthorID)
+
+	if len(filter.Tags) > 0 {
+		query = query.
+		Joins("JOIN post_tags ON post_tags.post_id = posts.id").
+		Joins("JOIN tags ON post_tags.tag_id = tags.id").
+		Where("tags.name IN ?", filter.Tags).
+		Distinct("posts.id")
+	}
+
+	if filter.AuthorID != nil {
+		query = query.Where("author_id = ?", *filter.AuthorID)
 	}
 
 	if err := query.Count(&count).Error; err != nil {
@@ -91,23 +113,23 @@ func (r *PostRepository)Count(ctx context.Context,AuthorID *uint)(int,error){
 	return int(count),nil
 }
 
-func (r *PostRepository)CountByTags(ctx context.Context,authorID *uint,tagNames []string)(int,error){
-	var count int64
-	query:= r.db.Model(&models.Post{}).
-	Joins("JOIN post_tags ON post_tags.post_id = posts.id").
-	Joins("JOIN tags ON post_tags.tag_id = tags.id").
-	Where("tags.name IN ?",tagNames).Distinct("posts.id")
+// func (r *PostRepository)CountByTags(ctx context.Context,authorID *uint,tagNames []string)(int,error){
+// 	var count int64
+// 	query:= r.db.Model(&models.Post{}).
+// 	Joins("JOIN post_tags ON post_tags.post_id = posts.id").
+// 	Joins("JOIN tags ON post_tags.tag_id = tags.id").
+// 	Where("tags.name IN ?",tagNames).Distinct("posts.id")
 
-	if authorID!=nil{
-		query = query.Where("posts.author_id = ?",*authorID)
-	}
+// 	if authorID!=nil{
+// 		query = query.Where("posts.author_id = ?",*authorID)
+// 	}
 
-	if err:=query.Count(&count).Error;err!=nil{
-		return 0,fmt.Errorf("failed to count posts %w",err)
-	}
+// 	if err:=query.Count(&count).Error;err!=nil{
+// 		return 0,fmt.Errorf("failed to count posts %w",err)
+// 	}
 
-	return int(count),nil
-}
+// 	return int(count),nil
+// }
 
 func (r *PostRepository)GetById(ctx context.Context, id uint)(*entity.Post,error){
 	var post models.Post

@@ -26,6 +26,7 @@ type GetPostsRequest struct{
 	Page int
 	Limit int
 	TagNames  []string
+	Search string
 }
 
 type PaginatedPosts struct{
@@ -66,33 +67,23 @@ func (u *PostUseCase)CreatePost(ctx context.Context,req *CreatePostRequest)(*ent
 
 func (u *PostUseCase)GetAllPosts(ctx context.Context,req *GetPostsRequest)(*PaginatedPosts,error){
 	offset:= (req.Page-1)*req.Limit
+	
+	filter := &PostFilter{
+		AuthorID: req.AuthorID,
+		Tags:     req.TagNames,
+		Search:   req.Search,
+		Offset:   offset,
+		Limit:    req.Limit,
+	}
 
+	posts, err := u.repo.GetList(ctx,filter)
+	if err!=nil{
+		return nil,fmt.Errorf("failed to get posts:%w",err)
+	}
 
-	var (
-		posts []*entity.Post
-		count int 
-		err error
-	)
-	switch {
-	case len(req.TagNames) > 0:
-
-		posts, err = u.repo.GetListByTags(ctx, req.AuthorID, req.TagNames, offset, req.Limit)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get posts:%w", err)
-		}
-		count,err = u.repo.CountByTags(ctx,req.AuthorID,req.TagNames)
-		if err!=nil{
-			return nil,fmt.Errorf("failed to get count of posts:%w",err)
-		}
-	default:
-		posts, err= u.repo.GetList(ctx,req.AuthorID,offset,req.Limit)
-		if err!=nil{
-			return nil,fmt.Errorf("failed to get posts:%w",err)
-		}
-		count,err = u.repo.Count(ctx,req.AuthorID)
-		if err!=nil{
-			return nil,fmt.Errorf("failed to get count of posts:%w",err)
-		}
+	count,err := u.repo.Count(ctx,filter)
+	if err!=nil{
+		return nil,fmt.Errorf("failed to get count of posts:%w",err)
 	}
 
 	return &PaginatedPosts{
