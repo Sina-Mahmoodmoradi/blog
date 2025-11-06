@@ -85,11 +85,11 @@ func (u *PostUseCase)GetAllPosts(ctx context.Context,req *GetPostsRequest)(*Pagi
 			return nil,fmt.Errorf("failed to get count of posts:%w",err)
 		}
 	default:
-		posts, err= u.repo.GetList(ctx,1,offset,req.Limit)
+		posts, err= u.repo.GetList(ctx,req.AuthorID,offset,req.Limit)
 		if err!=nil{
 			return nil,fmt.Errorf("failed to get posts:%w",err)
 		}
-		count,err = u.repo.Count(ctx,1)
+		count,err = u.repo.Count(ctx,req.AuthorID)
 		if err!=nil{
 			return nil,fmt.Errorf("failed to get count of posts:%w",err)
 		}

@@ -30,10 +30,16 @@ func (r *PostRepository) Save(ctx context.Context,post *entity.Post) error{
 	return nil
 }
 
-func (r *PostRepository)GetList(ctx context.Context ,AuthorID uint,offset ,limit int) ([]*entity.Post,error){
+func (r *PostRepository)GetList(ctx context.Context ,AuthorID *uint,offset ,limit int) ([]*entity.Post,error){
 	var posts []models.Post
-	if err:=r.db.WithContext(ctx).Where("author_id = ?", AuthorID).Order("created_at desc").Limit(limit).Offset(offset).Find(&posts).Error; err!=nil{
-		return nil,fmt.Errorf("failed to get posts %w",err)
+	query := r.db.WithContext(ctx)
+
+	if AuthorID != nil {
+		query = query.Where("author_id = ?", *AuthorID)
+	}
+
+	if err := query.Order("created_at desc").Limit(limit).Offset(offset).Find(&posts).Error; err != nil {
+		return nil, fmt.Errorf("failed to get posts %w", err)
 	}
 	
 	entityPosts := make([]*entity.Post,0,len(posts))
@@ -70,10 +76,16 @@ func (r *PostRepository)GetListByTags(ctx context.Context ,authorID *uint, tagNa
 }
 
 
-func (r *PostRepository)Count(ctx context.Context,AuthorID uint)(int,error){
+func (r *PostRepository)Count(ctx context.Context,AuthorID *uint)(int,error){
 	var count int64
-	if err:=r.db.Model(&models.Post{}).Count(&count).Error;err!=nil{
-		return 0,fmt.Errorf("failed to count posts %w",err)
+	query := r.db.Model(&models.Post{})
+	
+	if AuthorID != nil {
+		query = query.Where("author_id = ?", *AuthorID)
+	}
+
+	if err := query.Count(&count).Error; err != nil {
+		return 0, fmt.Errorf("failed to count posts %w", err)	
 	}
 
 	return int(count),nil
